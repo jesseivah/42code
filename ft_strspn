@@ -1,0 +1,22 @@
+char strchr(char *s, int c)
+{
+    while(*s)
+    {
+        if(*s == c)
+            return(char *)s;
+        s++;
+    }
+    return(0);
+}
+size_t strspn(const char *str, const char *set)
+{
+    size_t i = 0;
+
+    while(str[i])
+    {
+        if(strchr(set, str[i])== 0)
+            break;
+        i++;
+    }
+    return(i)
+}
