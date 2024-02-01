@@ -5,108 +5,109 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jebitrus <jebitrus@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/20 15:58:25 by jebitrus          #+#    #+#             */
-/*   Updated: 2024/01/20 15:59:39 by jebitrus         ###   ########.fr       */
+/*   Created: 2024/01/03 15:36:06 by jebitrus          #+#    #+#             */
+/*   Updated: 2024/01/03 15:40:11 by jebitrus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/push_swap.h"
+#include "push_swap.h"
 
-void	free_and_exit_with_message(t_stacks *s, char *msg)
+/* max nval binary digits*/
+static int	max_bin_digits(t_stack *stack)
 {
-	if (msg)
-		write(2, msg, ft_strlen(msg));
-	if (s != NULL)
+	int			max;
+	int			n;
+	t_stack		*current;
+
+	n = 0;
+	if (!stack)
+		return (0);
+	current = stack;
+	max = current->nval;
+	while (current)
 	{
-		if (s->a != NULL)
-			free(s->a);
-		if (s->b != NULL)
-			free(s->b);
-		if (s->join_args != NULL)
-			free(s->join_args);
-		if (s != NULL)
-			free(s);
+		if (current->nval > max)
+			max = current->nval;
+		current = current->next;
 	}
-	exit(1);
+	while (max > 0)
+	{
+		max = max >> 1;
+		n ++;
+	}
+	return (n);
 }
 
-static void	validate_arguments(int argc, char **argv)
+static void	ft_pushswap(t_stack **a, t_stack **b)
 {
-	int	i;
-	int	j;
+	int	max;
 
-	i = 0;
-	if (argc < 2)
-		free_and_exit_with_message(NULL, "");
-	while (++i < argc)
+	normalize(a);
+	if (ft_stksize(*a) <= 5)
+		basic_sort(a, b);
+	else
 	{
-		j = 0;
-		if (!argv[i][0] || (argv[i][0] && argv[i][0] == ' '))
-			free_and_exit_with_message(NULL, "Error\n");
-		while (argv[i][j] != '\0')
-		{
-			if ((!(ft_isdigit(argv[i][j])) && (argv[i][j] != ' ')
-			&& (argv[i][j] != '-' && argv[i][j] != '+' && argv[i][j] != ' '))
-			|| (argv[i][j] == '-' && argv[i][j + 1] == '\0')
-			|| (argv[i][j] == '+' && argv[i][j + 1] == '\0')
-			|| (argv[i][j] == '-' && argv[i][j + 1] == ' ')
-			|| (argv[i][j] == '+' && argv[i][j + 1] == ' '))
-				free_and_exit_with_message(NULL, "Error\n");
-			j++;
-		}
+		max = max_bin_digits(*a);
+		ft_radix_sort(a, b, max);
 	}
+	clear_stack(a);
+	clear_stack(b);
 }
 
-static void	join_args(int argc, char **argv, t_stacks *s)
+static int	ft_err(void)
 {
-	char	*tmp;
-	char	*tmp2;
-	int		i;
-
-	i = 0;
-	tmp2 = ft_strdup("");
-	while (++i < argc && argv[i] != NULL)
-	{
-		tmp = ft_strjoin(tmp2, argv[i]);
-		if (tmp2)
-			free(tmp2);
-		if (i != argc - 1)
-		{
-			tmp2 = ft_strjoin(tmp, " ");
-			if (tmp)
-				free(tmp);
-			tmp = tmp2;
-		}
-	}
-	s->join_args = ft_strdup(tmp);
-	if (s->join_args == NULL)
-		free_and_exit_with_message(s, "Error\n");
-	if (tmp)
-		free(tmp);
+	write (2, "Error\n", 6);
+	return (0);
 }
 
+static int	ft_init(char **argv, int x)
+{
+	t_stack	**a;
+	t_stack	**b;
+
+	a = NULL;
+	b = NULL;
+	if (ft_parse(argv, x) < 0)
+		return (ft_err());
+	a = store_in_stack(a, argv, x);
+	if (a == 0)
+		return (ft_err());
+	if (ft_issorted(*a))
+		return (clear_stack(a));
+	b = malloc (sizeof(t_stack **));
+	if (!b)
+	{
+		ft_err();
+		return (clear_stack(a));
+	}
+	*b = NULL;
+	ft_pushswap(a, b);
+	if (x == 0)
+		free_arr(argv);
+	return (1);
+}
+
+/*Main for Push Swap*/
 int	main(int argc, char **argv)
 {
-	t_stacks	*s;
+	char	**arr;
 
-	validate_arguments(argc, argv);
-	s = malloc(sizeof * s);
-	if (s == NULL)
-		exit(1);
-	initialize_stacks(argc, argv, s);
-	join_args(argc, argv, s);
-	parse_numbers(s);
-	exit_if_sorted_or_has_duplicate(s, 0);
-	create_index(s);
-	if (s->a_size == 2 && s->a[0] > s->a[1])
-		swap("sa", s->a, s->a_size);
-	else if (s->a_size == 3)
-		sort_three_elements(s);
-	else if (s->a_size >= 4 && s->a_size <= 5)
-		sort_four_to_five_elements(s);
+	arr = NULL;
+	if (argc < 2)
+		return (0);
+	else if (argc == 2)
+	{
+		arr = ft_split(argv[1], ' ');
+		if (!arr)
+			return (0);
+		if (arr[0] == (void *)0)
+			return (free_arr(arr));
+		if (ft_init(arr, 0))
+			return (0);
+		else
+			return (free_arr(arr));
+	}
 	else
-		radix_sort(s);
-	exit_if_sorted_or_has_duplicate(s, 1);
-	free_and_exit_with_message(s, "Error\n");
+		ft_init(argv, 1);
 	return (0);
 }
