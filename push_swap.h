@@ -5,40 +5,71 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jebitrus <jebitrus@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/20 16:04:15 by jebitrus          #+#    #+#             */
-/*   Updated: 2024/01/20 16:04:22 by jebitrus         ###   ########.fr       */
+/*   Created: 2024/01/03 15:42:25 by jebitrus          #+#    #+#             */
+/*   Updated: 2024/01/03 15:42:30 by jebitrus         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PUSH_SWAP_H
 # define PUSH_SWAP_H
 
-# include "../libft/libft.h"
 # include <stdlib.h>
 # include <unistd.h>
-# include <stdio.h>
+# include "libft/libft.h"
+# include "printf/ft_printf.h"
 
-typedef struct s_stacks
+typedef struct node
 {
-	int		*a;
-	int		*b;
-	int		a_size;
-	int		b_size;
-	char	*join_args;
-}			t_stacks;
+	int			content;
+	int			nval;
+	struct node	*next;
+}				t_stack;
 
-void		rotate(int *array, int size, char *direction, char *list);
-void		swap(char *str, int *array, int size);
-void		push(char *str, t_stacks *s);
-void		sort_three_elements(t_stacks *s);
-void		sort_four_to_five_elements(t_stacks *s);
-void		radix_sort(t_stacks *s);
-void		parse_numbers(t_stacks *s);
-void		create_index(t_stacks *s);
-void		initialize_stacks(int argc, char **argv, t_stacks *s);
-void		free_and_exit_with_message(t_stacks *s, char *msg);
-void		exit_if_sorted_or_has_duplicate(t_stacks *s, int i);
-int			is_array_sorted(t_stacks *s);
-int			ft_atol(const char *n, t_stacks *s);
+/* Debug Utils */
+
+void	print_stack(t_stack *stack);
+int		clear_stack(t_stack **stack);
+void	print_details(char c, t_stack *stack);
+int		free_arr(char **arr);
+
+/* Stack Utils */
+
+void	ft_stkadd_front(t_stack **stack, t_stack *new);
+void	ft_stkadd_back(t_stack **stack, t_stack *new);
+t_stack	*ft_stknew(int content);
+int		ft_stksize(t_stack *stack);
+
+/* Push_swap */
+
+//long long	ft_atoll(const char *nptr);
+int		ft_parse(char **argv, int x);
+//long long		ft_atoll(const char *nptr);
+t_stack	**store_in_stack(t_stack **a, char **argv, int i);
+
+/* Moves */
+
+void	swap(char c, t_stack **ptr);
+void	rot(char c, t_stack **ptr);
+void	rev_rot(char c, t_stack **ptr);
+void	push(char c, t_stack **x, t_stack **y);
+
+/* Double Moves */
+
+void	swap_both(t_stack **a, t_stack **b);
+void	rot_both(t_stack **a, t_stack **b);
+void	rev_rot_both(t_stack **a, t_stack **b);
+
+/* Basic Sort */
+
+void	basic_sort(t_stack **a, t_stack **b);
+
+/* Normalize */
+
+void	normalize(t_stack **stack);
+int		ft_issorted(t_stack *a);
+
+/* Radix Sort */
+
+void	ft_radix_sort(t_stack **a, t_stack **b, int max);
 
 #endif
